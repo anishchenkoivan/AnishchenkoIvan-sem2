@@ -1,0 +1,10 @@
+/home/ivan/github/AnishchenkoIvan-sem2/book-service/src/main/java/com/example/demo/controller/response/ApiError.java
+/home/ivan/github/AnishchenkoIvan-sem2/book-service/src/main/java/com/example/demo/entity/Book.java
+/home/ivan/github/AnishchenkoIvan-sem2/book-service/src/main/java/com/example/demo/controller/BookController.java
+/home/ivan/github/AnishchenkoIvan-sem2/book-service/src/main/java/com/example/demo/controller/request/BookUpdateRequest.java
+/home/ivan/github/AnishchenkoIvan-sem2/book-service/src/main/java/com/example/demo/controller/request/BookCreateRequest.java
+/home/ivan/github/AnishchenkoIvan-sem2/book-service/src/main/java/com/example/demo/repository/InMemoryBookRepository.java
+/home/ivan/github/AnishchenkoIvan-sem2/book-service/src/main/java/com/example/demo/repository/BookRepository.java
+/home/ivan/github/AnishchenkoIvan-sem2/book-service/src/main/java/com/example/demo/controller/BookViewController.java
+/home/ivan/github/AnishchenkoIvan-sem2/book-service/src/main/java/com/example/demo/DemoApplication.java
+/home/ivan/github/AnishchenkoIvan-sem2/book-service/src/main/java/com/example/demo/repository/exceptions/BookNotFoundException.java
