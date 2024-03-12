@@ -1,0 +1,64 @@
+<?xml version="1.0" encoding="UTF-8"?><!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd"><html xmlns="http://www.w3.org/1999/xhtml" lang="en"><head><meta http-equiv="Content-Type" content="text/html;charset=UTF-8"/><link rel="stylesheet" href="../jacoco-resources/report.css" type="text/css"/><link rel="shortcut icon" href="../jacoco-resources/report.gif" type="image/gif"/><title>BookController.java</title><link rel="stylesheet" href="../jacoco-resources/prettify.css" type="text/css"/><script type="text/javascript" src="../jacoco-resources/prettify.js"></script></head><body onload="window['PR_TAB_WIDTH']=4;prettyPrint()"><div class="breadcrumb" id="breadcrumb"><span class="info"><a href="../jacoco-sessions.html" class="el_session">Sessions</a></span><a href="../index.html" class="el_report">demo</a> &gt; <a href="index.source.html" class="el_package">com.example.demo.controller</a> &gt; <span class="el_source">BookController.java</span></div><h1>BookController.java</h1><pre class="source lang-java linenums">package com.example.demo.controller;
+
+import com.example.demo.controller.request.BookCreateRequest;
+import com.example.demo.controller.request.BookUpdateRequest;
+import com.example.demo.controller.response.ApiError;
+import com.example.demo.entity.Book;
+import com.example.demo.repository.BookRepository;
+import jakarta.validation.Valid;
+import jakarta.validation.constraints.NotNull;
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.http.HttpStatus;
+import org.springframework.http.ResponseEntity;
+import org.springframework.validation.annotation.Validated;
+import org.springframework.web.bind.annotation.*;
+
+import java.util.List;
+import java.util.NoSuchElementException;
+
+@RestController
+@RequestMapping(value = &quot;/api&quot;)
+@Validated
+public class BookController {
+    private final BookRepository bookRepository;
+
+    @Autowired
+<span class="fc" id="L26">    public BookController(BookRepository bookRepository) {</span>
+<span class="fc" id="L27">        this.bookRepository = bookRepository;</span>
+<span class="fc" id="L28">    }</span>
+
+    @GetMapping(&quot;/books/{id}&quot;)
+    public Book getBook(@PathVariable(&quot;id&quot;) Long id) {
+<span class="fc" id="L32">        return bookRepository.findById(id).orElseThrow();</span>
+    }
+
+    @GetMapping(&quot;/books/with-tag/{tag}&quot;)
+    public List&lt;Book&gt; getBooksByTag(@PathVariable String tag) {
+<span class="fc" id="L37">        return bookRepository.findByTag(tag);</span>
+    }
+
+    @PostMapping(&quot;/books&quot;)
+    public Book createBook(@NotNull @RequestBody @Valid BookCreateRequest request) {
+<span class="fc" id="L42">        Book book = new Book(request.author(), request.title(), request.tags());</span>
+<span class="fc" id="L43">        return bookRepository.save(book).orElseThrow();</span>
+    }
+
+    @DeleteMapping(&quot;/books/{id}&quot;)
+    public Book deleteBook(@NotNull @PathVariable Long id) {
+<span class="fc" id="L48">        return bookRepository.deleteById(id).orElseThrow();</span>
+    }
+
+    @PutMapping(&quot;/books/{id}&quot;)
+    public void updateBook(@NotNull @PathVariable Long id, @NotNull @RequestBody @Valid BookUpdateRequest request) {
+<span class="fc" id="L53">        bookRepository.save(new Book(id, request.author(), request.title(), request.tags()));</span>
+<span class="fc" id="L54">    }</span>
+
+    @ExceptionHandler
+    public ResponseEntity&lt;ApiError&gt; noSuchElementExceptionHandler(NoSuchElementException e) {
+<span class="fc" id="L58">        return new ResponseEntity&lt;&gt;(</span>
+<span class="fc" id="L59">                new ApiError(e.getMessage()),</span>
+                HttpStatus.NOT_FOUND
+        );
+    }
+}
+</pre><div class="footer"><span class="right">Created with <a href="http://www.jacoco.org/jacoco">JaCoCo</a> 0.8.7.202105040129</span></div></body></html>
