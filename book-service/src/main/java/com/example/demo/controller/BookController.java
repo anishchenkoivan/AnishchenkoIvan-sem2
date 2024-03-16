@@ -17,7 +17,7 @@ import java.util.List;
 import java.util.NoSuchElementException;
 
 @RestController
-@RequestMapping(value = "/api")
+@RequestMapping(value = "/api/books")
 @Validated
 public class BookController {
     private final BookRepository bookRepository;
@@ -27,28 +27,28 @@ public class BookController {
         this.bookRepository = bookRepository;
     }
 
-    @GetMapping("/books/{id}")
+    @GetMapping("/{id}")
     public Book getBook(@PathVariable("id") Long id) {
         return bookRepository.findById(id).orElseThrow();
     }
 
-    @GetMapping("/books/with-tag/{tag}")
+    @GetMapping("/with-tag/{tag}")
     public List<Book> getBooksByTag(@PathVariable String tag) {
         return bookRepository.findByTag(tag);
     }
 
-    @PostMapping("/books")
+    @PostMapping()
     public Book createBook(@NotNull @RequestBody @Valid BookCreateRequest request) {
         Book book = new Book(request.author(), request.title(), request.tags());
         return bookRepository.save(book).orElseThrow();
     }
 
-    @DeleteMapping("/books/{id}")
+    @DeleteMapping("/{id}")
     public Book deleteBook(@NotNull @PathVariable Long id) {
         return bookRepository.deleteById(id).orElseThrow();
     }
 
-    @PutMapping("/books/{id}")
+    @PutMapping("/{id}")
     public void updateBook(@NotNull @PathVariable Long id, @NotNull @RequestBody @Valid BookUpdateRequest request) {
         bookRepository.save(new Book(id, request.author(), request.title(), request.tags()));
     }
