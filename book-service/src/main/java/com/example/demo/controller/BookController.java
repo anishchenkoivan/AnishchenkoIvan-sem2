@@ -34,18 +34,18 @@ public class BookController {
 
     @GetMapping("/with-tag/{tag}")
     public List<Book> getBooksByTag(@PathVariable String tag) {
-        return bookRepository.findByTag(tag);
+        return bookRepository.findByTagName(tag);
     }
 
     @PostMapping()
     public Book createBook(@NotNull @RequestBody @Valid BookCreateRequest request) {
         Book book = new Book(request.author(), request.title(), request.tags());
-        return bookRepository.save(book).orElseThrow();
+        return bookRepository.save(book);
     }
 
     @DeleteMapping("/{id}")
     public Book deleteBook(@NotNull @PathVariable Long id) {
-        return bookRepository.deleteById(id).orElseThrow();
+        bookRepository.deleteById(id);
     }
 
     @PutMapping("/{id}")
