@@ -19,12 +19,8 @@ public class Book {
     @JoinColumn(name = "author_id")
     private Author author;
 
-    @ManyToMany(fetch = FetchType.LAZY, cascade = CascadeType.PERSIST)
-    @JoinTable(
-            name = "book_tag",
-            joinColumns = @JoinColumn(name = "book_id"),
-            inverseJoinColumns = @JoinColumn(name = "tag_id")
-    )
+
+    @ManyToMany(mappedBy = "book")
     private Set<Tag> tags = new HashSet<>();
 
     public Long getId() {
@@ -43,10 +39,6 @@ public class Book {
         return tags;
     }
 
-    public void setId(Long id) {
-        this.id = id;
-    }
-
     public void setAuthor(Author author) {
         this.author = author;
     }
@@ -61,14 +53,14 @@ public class Book {
 
     protected Book() {}
 
-    public Book(long id, Author author, String title, Set<String> tags) {
+    public Book(long id, Author author, String title, Set<Tag> tags) {
         this.id = id;
         this.author = author;
         this.title = title;
         this.tags = tags;
     }
 
-    public Book(Author author, String title, Set<String> tags) {
+    public Book(Author author, String title, Set<Tag> tags) {
         this.author = author;
         this.title = title;
         this.tags = tags;

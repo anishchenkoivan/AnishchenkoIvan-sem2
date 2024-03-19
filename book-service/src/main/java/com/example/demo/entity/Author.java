@@ -5,6 +5,8 @@ import jakarta.validation.constraints.NotNull;
 
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Objects;
+import java.util.Set;
 
 @Entity
 @Table(name = "authors")
@@ -14,12 +16,10 @@ public class Author {
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
 
-    @NotNull(message = "Author's first name should be filled")
     private String firstName;
-    @NotNull(message = "Author's last name should be filled")
     private String lastName;
 
-    @OneToMany(mappedBy = "author", orphanRemoval = true)
+    @OneToMany(mappedBy = "author", orphanRemoval = true, cascade = CascadeType.PERSIST)
     private List<Book> books = new ArrayList<>();
     protected Author() {}
 
@@ -51,8 +51,11 @@ public class Author {
     public void setLastName(String lastName) {
         this.lastName = lastName;
     }
+    public void createBook(String title, Set<Tag> tags) {
+        books.add(new Book(this, title, tags));
+    }
 
-    public void setBooks(List<Book> books) {
-        this.books = books;
+    public void deleteBook(Long id) {
+        books.removeIf(book -> Objects.equals(book.getId(), id));
     }
 }

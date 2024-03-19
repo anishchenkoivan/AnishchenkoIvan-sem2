@@ -1,10 +1,9 @@
 package com.example.demo.controller;
 
-import com.example.demo.controller.request.BookCreateRequest;
-import com.example.demo.controller.request.BookUpdateRequest;
+import com.example.demo.controller.request.AuthorCreateRequest;
+import com.example.demo.controller.request.AuthorUpdateNameRequest;
 import com.example.demo.controller.response.ApiError;
 import com.example.demo.service.AuthorService;
-import com.example.demo.service.BookService;
 import jakarta.validation.Valid;
 import jakarta.validation.constraints.NotNull;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -16,31 +15,29 @@ import org.springframework.web.bind.annotation.*;
 import java.util.NoSuchElementException;
 
 @RestController
-@RequestMapping(value = "/api/books")
+@RequestMapping(value = "/api/authors")
 @Validated
-public class BookController {
-    private final BookService bookService;
+public class AuthorController {
     private final AuthorService authorService;
 
     @Autowired
-    public BookController(BookService bookService, AuthorService authorService) {
-        this.bookService = bookService;
+    public AuthorController(AuthorService authorService) {
         this.authorService = authorService;
     }
 
     @PostMapping()
-    public void createBook(@NotNull @RequestBody @Valid BookCreateRequest request) {
-        authorService.createBook(request.authorId(), request.title(), request.tags());
+    public void createAuthor(@NotNull @RequestBody @Valid AuthorCreateRequest authorCreateRequest) {
+        authorService.createAuthor(authorCreateRequest.firstName(), authorCreateRequest.lastName());
     }
 
     @DeleteMapping("/{id}")
-    public void deleteBook(@NotNull @PathVariable Long id) {
-        authorService.deleteBook(id);
+    public void deleteAuthor(@NotNull @PathVariable Long id) {
+        authorService.deleteAuthor(id);
     }
 
     @PutMapping("/{id}")
-    public void updateBook(@NotNull @PathVariable Long id, @NotNull @RequestBody @Valid BookUpdateRequest request) {
-        bookService.updateBookTitle(id, request.title());
+    public void updateAuthorName(@NotNull @PathVariable Long id, @NotNull @RequestBody @Valid AuthorUpdateNameRequest authorUpdateNameRequest) {
+        authorService.updateAuthorName(id, authorUpdateNameRequest.firstName(), authorUpdateNameRequest.lastName());
     }
 
     @ExceptionHandler

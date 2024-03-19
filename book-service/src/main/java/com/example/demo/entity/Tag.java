@@ -15,8 +15,13 @@ public class Tag {
 
     private String name;
 
-    @ManyToMany(mappedBy = "tags")
-    private Set<Book> books = new HashSet<>();
+    @ManyToMany(fetch = FetchType.LAZY, cascade = CascadeType.PERSIST)
+    @JoinTable(
+            name = "book_tag",
+            joinColumns = @JoinColumn(name = "tag_id"),
+            inverseJoinColumns = @JoinColumn(name = "book_id")
+    )
+    private final Set<Book> books = new HashSet<>();
 
     protected Tag() {}
 
@@ -30,6 +35,10 @@ public class Tag {
 
     public String getName() {
         return name;
+    }
+
+    public void setName(String name) {
+        this.name = name;
     }
 
     @Override
