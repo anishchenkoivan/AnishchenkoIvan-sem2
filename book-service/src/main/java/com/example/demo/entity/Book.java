@@ -1,8 +1,6 @@
 package com.example.demo.entity;
 
-import com.fasterxml.jackson.annotation.JsonProperty;
 import jakarta.persistence.*;
-import org.springframework.boot.jackson.JsonComponent;
 
 import java.util.HashSet;
 import java.util.Set;
@@ -20,7 +18,12 @@ public class Book {
     private Author author;
 
 
-    @ManyToMany(mappedBy = "book")
+    @ManyToMany(fetch = FetchType.LAZY, cascade = CascadeType.PERSIST)
+    @JoinTable(
+            name = "book_tag",
+            joinColumns = @JoinColumn(name = "book_id"),
+            inverseJoinColumns = @JoinColumn(name = "tag_id")
+    )
     private Set<Tag> tags = new HashSet<>();
 
     public Long getId() {
@@ -37,10 +40,6 @@ public class Book {
 
     public Set<Tag> getTags() {
         return tags;
-    }
-
-    public void setAuthor(Author author) {
-        this.author = author;
     }
 
     public void setTitle(String title) {
@@ -64,13 +63,6 @@ public class Book {
         this.author = author;
         this.title = title;
         this.tags = tags;
-    }
-
-    public Book(Book book) {
-        this.id = book.getId();
-        this.author = book.getAuthor();
-        this.title = book.getTitle();
-        this.tags = book.getTags();
     }
 
     @Override

@@ -32,4 +32,9 @@ public class TagService {
         tag.setName(name);
         tagRepository.save(tag);
     }
+
+    @Transactional
+    public Tag getTagByName(String name) {
+        return tagRepository.findTagByName(name).orElseThrow();
+    }
 }

@@ -1,7 +1,6 @@
 package com.example.demo.entity;
 
 import jakarta.persistence.*;
-import jakarta.validation.constraints.NotNull;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -19,8 +18,8 @@ public class Author {
     private String firstName;
     private String lastName;
 
-    @OneToMany(mappedBy = "author", orphanRemoval = true, cascade = CascadeType.PERSIST)
-    private List<Book> books = new ArrayList<>();
+    @OneToMany(mappedBy = "author", orphanRemoval = true, cascade = {CascadeType.PERSIST, CascadeType.REMOVE, CascadeType.MERGE})
+    private final List<Book> books = new ArrayList<>();
     protected Author() {}
 
     public Author(String firstName, String lastName) {
@@ -52,7 +51,8 @@ public class Author {
         this.lastName = lastName;
     }
     public void createBook(String title, Set<Tag> tags) {
-        books.add(new Book(this, title, tags));
+        Book book = new Book(this, title, tags);
+        books.add(book);
     }
 
     public void deleteBook(Long id) {

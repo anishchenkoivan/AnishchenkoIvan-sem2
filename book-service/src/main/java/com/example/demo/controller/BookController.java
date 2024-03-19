@@ -3,8 +3,10 @@ package com.example.demo.controller;
 import com.example.demo.controller.request.BookCreateRequest;
 import com.example.demo.controller.request.BookUpdateRequest;
 import com.example.demo.controller.response.ApiError;
+import com.example.demo.entity.Tag;
 import com.example.demo.service.AuthorService;
 import com.example.demo.service.BookService;
+import com.example.demo.service.TagService;
 import jakarta.validation.Valid;
 import jakarta.validation.constraints.NotNull;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -13,7 +15,9 @@ import org.springframework.http.ResponseEntity;
 import org.springframework.validation.annotation.Validated;
 import org.springframework.web.bind.annotation.*;
 
+import java.util.HashSet;
 import java.util.NoSuchElementException;
+import java.util.Set;
 
 @RestController
 @RequestMapping(value = "/api/books")
@@ -21,16 +25,22 @@ import java.util.NoSuchElementException;
 public class BookController {
     private final BookService bookService;
     private final AuthorService authorService;
+    private final TagService tagService;
 
     @Autowired
-    public BookController(BookService bookService, AuthorService authorService) {
+    public BookController(BookService bookService, AuthorService authorService, TagService tagService) {
         this.bookService = bookService;
         this.authorService = authorService;
+        this.tagService = tagService;
     }
 
     @PostMapping()
     public void createBook(@NotNull @RequestBody @Valid BookCreateRequest request) {
-        authorService.createBook(request.authorId(), request.title(), request.tags());
+        Set<Tag> tags = new HashSet<>();
+        for (String name : request.tags()) {
+            tags.add(tagService.getTagByName(name));
+        }
+        authorService.createBook(request.authorId(), request.title(), tags);
     }
 
     @DeleteMapping("/{id}")
