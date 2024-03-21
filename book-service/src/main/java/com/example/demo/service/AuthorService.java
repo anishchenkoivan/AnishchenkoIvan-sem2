@@ -18,13 +18,11 @@ public class AuthorService {
         this.authorRepository = authorRepository;
     }
 
-    @Transactional
     public void createAuthor(String firstName, String lastName) {
         Author author = new Author(firstName, lastName);
         authorRepository.save(author);
     }
 
-    @Transactional
     public void deleteAuthor(Long id) {
         Author author = authorRepository.findById(id).orElseThrow();
         authorRepository.delete(author);
@@ -45,7 +43,6 @@ public class AuthorService {
         authorRepository.save(author);
     }
 
-    @Transactional
     public void deleteBook(Long bookId) {
         Author author = authorRepository.findByBookId(bookId).orElseThrow();
         author.deleteBook(bookId);

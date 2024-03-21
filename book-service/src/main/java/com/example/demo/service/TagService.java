@@ -15,12 +15,10 @@ public class TagService {
         this.tagRepository = tagRepository;
     }
 
-    @Transactional
     public void createTag(String name) {
         tagRepository.save(new Tag(name));
     }
 
-    @Transactional
     public void deleteTag(Long id) {
         Tag tag = tagRepository.findById(id).orElseThrow();
         tagRepository.delete(tag);
@@ -33,7 +31,6 @@ public class TagService {
         tagRepository.save(tag);
     }
 
-    @Transactional
     public Tag getTagByName(String name) {
         return tagRepository.findTagByName(name).orElseThrow();
     }
