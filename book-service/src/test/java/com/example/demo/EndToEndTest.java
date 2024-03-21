@@ -4,7 +4,7 @@ import com.example.demo.controller.request.*;
 import com.example.demo.entity.Author;
 import com.example.demo.repository.AuthorRepository;
 import com.example.demo.repository.BookRepository;
-import com.example.demo.response.EmtyResponse;
+import com.example.demo.response.EmptyResponse;
 import org.junit.jupiter.api.MethodOrderer;
 import org.junit.jupiter.api.Order;
 import org.junit.jupiter.api.Test;
@@ -46,7 +46,7 @@ public class EndToEndTest {
     @Test
     @Order(0)
     void ShouldCreateAuthor() {
-        ResponseEntity<EmtyResponse> createAuthorResponse = rest.postForEntity("/api/authors", new AuthorCreateRequest("William", "Shakespeare"), EmtyResponse.class);
+        ResponseEntity<EmptyResponse> createAuthorResponse = rest.postForEntity("/api/authors", new AuthorCreateRequest("William", "Shakespeare"), EmptyResponse.class);
         assertTrue(createAuthorResponse.getStatusCode().is2xxSuccessful());
         int authorsAmount = authorRepository.findAll().size();
         assertEquals(1, authorsAmount);
@@ -65,7 +65,7 @@ public class EndToEndTest {
     @Test
     @Order(2)
     void shouldCreateBook() {
-        ResponseEntity<EmtyResponse> createBookResponse = rest.postForEntity("/api/books", new BookCreateRequest(1L, "Old man and the sea", Collections.emptySet()), EmtyResponse.class);
+        ResponseEntity<EmptyResponse> createBookResponse = rest.postForEntity("/api/books", new BookCreateRequest(1L, "Old man and the sea", Collections.emptySet()), EmptyResponse.class);
         assertTrue(createBookResponse.getStatusCode().is2xxSuccessful());
         int booksAmount = bookRepository.findAll().size();
         assertEquals(1, booksAmount);
@@ -74,7 +74,7 @@ public class EndToEndTest {
     @Test
     @Order(3)
     void shouldCreateTag() {
-        ResponseEntity<EmtyResponse> createTagResponse = rest.postForEntity("/api/tags", new TagCreateRequest("Classic"), EmtyResponse.class);
+        ResponseEntity<EmptyResponse> createTagResponse = rest.postForEntity("/api/tags", new TagCreateRequest("Classic"), EmptyResponse.class);
         assertTrue(createTagResponse.getStatusCode().is2xxSuccessful());
     }
 }

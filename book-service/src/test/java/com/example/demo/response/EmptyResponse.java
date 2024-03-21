@@ -1,4 +1,4 @@
 package com.example.demo.response;
 
-public record EmtyResponse() {
+public record EmptyResponse() {
 }
