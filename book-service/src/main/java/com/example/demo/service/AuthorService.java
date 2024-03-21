@@ -35,6 +35,7 @@ public class AuthorService {
         Author author = authorRepository.findById(id).orElseThrow();
         author.setFirstName(firstName);
         author.setLastName(lastName);
+        authorRepository.save(author);
     }
 
     @Transactional
