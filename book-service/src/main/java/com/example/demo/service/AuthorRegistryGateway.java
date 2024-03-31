@@ -1,6 +1,10 @@
 package com.example.demo.service;
 
 import com.example.demo.service.exception.AuthorRegistryException;
+import io.github.resilience4j.circuitbreaker.CallNotPermittedException;
+import io.github.resilience4j.circuitbreaker.annotation.CircuitBreaker;
+import io.github.resilience4j.ratelimiter.RequestNotPermitted;
+import io.github.resilience4j.ratelimiter.annotation.RateLimiter;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Service;
@@ -19,6 +23,8 @@ public class AuthorRegistryGateway {
         this.restTemplate = restTemplate;
     }
 
+    @RateLimiter(name = "checkAuthor", fallbackMethod = "fallbackRateLimiter")
+    @CircuitBreaker(name = "checkAuthor", fallbackMethod = "fallbackCircuitBreaker")
     public boolean checkAuthor(String authorFirstName, String authorLastName, String bookTitle) {
         try {
             ResponseEntity<Boolean> authorValidationResponse = restTemplate.getForEntity(
@@ -33,5 +39,13 @@ public class AuthorRegistryGateway {
         } catch (RestClientException e) {
             throw new AuthorRegistryException("Error during requesting author registry service + " + e.getMessage(), e);
         }
+    }
+
+    public boolean fallbackRateLimiter(String authorFirstName, String authorLastName, String bookTitle, RequestNotPermitted e) {
+        throw new AuthorRegistryException(e.getMessage(), e);
+    }
+
+    public boolean fallbackCircuitBreaker(String authorFirstName, String authorLastName, String bookTitle, CallNotPermittedException e) {
+        throw new AuthorRegistryException(e.getMessage(), e);
     }
 }
