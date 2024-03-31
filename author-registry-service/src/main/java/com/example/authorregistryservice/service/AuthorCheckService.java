@@ -6,8 +6,11 @@ import com.example.authorregistryservice.service.exception.BookModifyException;
 import com.example.authorregistryservice.service.exception.BookUpdateException;
 import com.example.authorregistryservice.service.request.BookModifyRequest;
 import com.example.authorregistryservice.service.request.BookUpdateRequest;
+import com.example.authorregistryservice.service.response.ApiError;
 import jakarta.validation.Valid;
 import jakarta.validation.constraints.NotNull;
+import org.springframework.http.HttpStatus;
+import org.springframework.http.ResponseEntity;
 import org.springframework.validation.annotation.Validated;
 import org.springframework.web.bind.annotation.*;
 
@@ -57,5 +60,21 @@ public class AuthorCheckService {
             books.put(request.bookNewTitle(), null);
             books.remove(request.bookOldTitle());
         }
+    }
+
+    @ExceptionHandler
+    public ResponseEntity<ApiError> BookModifyExceptionHandler(BookModifyException e) {
+        return new ResponseEntity<>(
+                new ApiError(e.getMessage()),
+                HttpStatus.CONFLICT
+        );
+    }
+
+    @ExceptionHandler
+    public ResponseEntity<ApiError> BookUpdateExceptionHandler(BookUpdateException e) {
+        return new ResponseEntity<>(
+                new ApiError(e.getMessage()),
+                HttpStatus.NOT_FOUND
+        );
     }
 }

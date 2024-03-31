@@ -2,9 +2,10 @@ package com.example.demo.service;
 
 import com.example.demo.entity.Book;
 import com.example.demo.repository.BookRepository;
-import jakarta.transaction.Transactional;
+import org.springframework.transaction.annotation.Transactional;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Propagation;
 
 import java.util.Set;
 
@@ -17,7 +18,7 @@ public class BookService {
         this.bookRepository = bookRepository;
     }
 
-    @Transactional
+    @Transactional(propagation = Propagation.REQUIRED)
     public void updateBookTitle(Long id, String title) {
         Book book = bookRepository.findById(id).orElseThrow();
         book.setTitle(title);
