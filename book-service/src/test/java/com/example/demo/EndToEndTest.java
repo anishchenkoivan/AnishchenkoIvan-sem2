@@ -5,6 +5,7 @@ import com.example.demo.entity.Author;
 import com.example.demo.repository.AuthorRepository;
 import com.example.demo.repository.BookRepository;
 import com.example.demo.response.EmptyResponse;
+import com.example.demo.service.AuthorRegistryGateway;
 import org.junit.jupiter.api.MethodOrderer;
 import org.junit.jupiter.api.Order;
 import org.junit.jupiter.api.Test;
@@ -12,10 +13,12 @@ import org.junit.jupiter.api.TestMethodOrder;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.autoconfigure.jdbc.AutoConfigureTestDatabase;
 import org.springframework.boot.test.context.SpringBootTest;
+import org.springframework.boot.test.mock.mockito.MockBean;
 import org.springframework.boot.test.web.client.TestRestTemplate;
 import org.springframework.boot.testcontainers.service.connection.ServiceConnection;
 import org.springframework.http.ResponseEntity;
 import org.springframework.test.annotation.Rollback;
+import org.springframework.web.client.RestTemplate;
 import org.testcontainers.containers.PostgreSQLContainer;
 import org.testcontainers.junit.jupiter.Container;
 import org.testcontainers.junit.jupiter.Testcontainers;
@@ -23,8 +26,14 @@ import org.testcontainers.junit.jupiter.Testcontainers;
 import java.util.*;
 
 import static org.junit.jupiter.api.Assertions.*;
+import static org.mockito.ArgumentMatchers.any;
+import static org.mockito.ArgumentMatchers.eq;
+import static org.mockito.Mockito.when;
 
-@SpringBootTest(webEnvironment = SpringBootTest.WebEnvironment.RANDOM_PORT)
+@SpringBootTest(
+        webEnvironment = SpringBootTest.WebEnvironment.RANDOM_PORT,
+        properties = {"author-registry-gateway.mode=http"}
+)
 @AutoConfigureTestDatabase(replace = AutoConfigureTestDatabase.Replace.NONE)
 @Testcontainers
 @TestMethodOrder(MethodOrderer.OrderAnnotation.class)
@@ -42,6 +51,12 @@ public class EndToEndTest {
 
     @Autowired
     private BookRepository bookRepository;
+
+    @MockBean
+    private AuthorRegistryGateway authorRegistryGateway;
+
+    @MockBean
+    private RestTemplate restTemplate;
 
     @Test
     @Order(0)
@@ -65,6 +80,7 @@ public class EndToEndTest {
     @Test
     @Order(2)
     void shouldCreateBook() {
+        when(authorRegistryGateway.checkAuthor(eq("Ernest"), eq("Hemingway"), eq("Old man and the sea"), any())).thenReturn(true);
         ResponseEntity<EmptyResponse> createBookResponse = rest.postForEntity("/api/books", new BookCreateRequest(1L, "Old man and the sea", Collections.emptySet()), EmptyResponse.class);
         assertTrue(createBookResponse.getStatusCode().is2xxSuccessful());
         int booksAmount = bookRepository.findAll().size();
