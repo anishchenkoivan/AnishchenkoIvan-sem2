@@ -14,6 +14,7 @@ import org.testcontainers.junit.jupiter.Container;
 import org.testcontainers.junit.jupiter.Testcontainers;
 import org.testcontainers.utility.DockerImageName;
 
+import java.util.UUID;
 import java.util.concurrent.TimeUnit;
 
 import static org.junit.jupiter.api.Assertions.*;
@@ -45,7 +46,7 @@ public class AuthorRegistryGatewayTest {
         client.when(request().withPath("/api/authors-check").withQueryStringParameters(param("firstName", "Robert"), param("lastName", "Stevenson"), param("bookTitle", "Treasure Island")))
                 .respond(HttpResponse.response("true").withHeader("Content-Type", "application/json"));
 
-        Boolean authorCheck = authorRegistryGateway.checkAuthor("Robert", "Stevenson", "Treasure Island");
+        Boolean authorCheck = authorRegistryGateway.checkAuthor("Robert", "Stevenson", "Treasure Island", UUID.randomUUID().toString());
 
         assertEquals(true, authorCheck);
     }
@@ -56,6 +57,6 @@ public class AuthorRegistryGatewayTest {
         client.when(request().withPath("/api/authors-check").withQueryStringParameters(param("firstName", "Lev"), param("lastName", "Tolstoy"), param("bookTitle", "War and Peace")))
                 .respond(HttpResponse.response("true").withHeader("Content-Type", "application/json").withDelay(TimeUnit.SECONDS, 2));
 
-        assertThrows(AuthorRegistryException.class, () -> authorRegistryGateway.checkAuthor("Lev", "Tolstoy", "War and Peace"));
+        assertThrows(AuthorRegistryException.class, () -> authorRegistryGateway.checkAuthor("Lev", "Tolstoy", "War and Peace", UUID.randomUUID().toString()));
     }
 }

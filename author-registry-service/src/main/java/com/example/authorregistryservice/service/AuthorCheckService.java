@@ -23,8 +23,18 @@ import java.util.concurrent.ConcurrentHashMap;
 @Validated
 public class AuthorCheckService {
     ConcurrentHashMap<Author, Map<String, ?>> authorsData = new ConcurrentHashMap<>();
+    ConcurrentHashMap<String, Boolean> computedData = new ConcurrentHashMap<>();
 
     @GetMapping
+    public boolean verifyAuthor(@NotNull @RequestParam String firstName, @NotNull @RequestParam String lastName, @NotNull @RequestParam String bookTitle, @NotNull @RequestHeader("X-REQUEST-ID") String requestId) {
+        final Author author = new Author(firstName, lastName);
+        boolean result = computedData.computeIfAbsent(
+                requestId,
+                k -> authorsData.getOrDefault(author, Collections.emptyMap()).containsKey(bookTitle)
+        );
+        return result;
+    }
+
     public boolean verifyAuthor(@NotNull @RequestParam String firstName, @NotNull @RequestParam String lastName, @NotNull @RequestParam String bookTitle) {
         final Author author = new Author(firstName, lastName);
         return authorsData.getOrDefault(author, Collections.emptyMap()).containsKey(bookTitle);

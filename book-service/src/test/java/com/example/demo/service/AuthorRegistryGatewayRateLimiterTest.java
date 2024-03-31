@@ -16,6 +16,7 @@ import org.springframework.web.client.RestClientException;
 import org.springframework.web.client.RestTemplate;
 
 import java.util.Map;
+import java.util.UUID;
 
 import static org.junit.jupiter.api.Assertions.*;
 import static org.mockito.ArgumentMatchers.eq;
@@ -60,12 +61,12 @@ public class AuthorRegistryGatewayRateLimiterTest {
         });
 
         assertDoesNotThrow(
-                () -> authorRegistryGateway.checkAuthor("Robert", "Stevenson", "Treasure Island")
+                () -> authorRegistryGateway.checkAuthor("Robert", "Stevenson", "Treasure Island", UUID.randomUUID().toString())
         );
 
         assertThrows(
                 AuthorRegistryException.class,
-                () -> authorRegistryGateway.checkAuthor("Robert", "Stevenson", "Treasure Island"));
+                () -> authorRegistryGateway.checkAuthor("Robert", "Stevenson", "Treasure Island", UUID.randomUUID().toString()));
     }
 
     @Test
@@ -77,12 +78,12 @@ public class AuthorRegistryGatewayRateLimiterTest {
         )).thenThrow(new RestClientException("Unexpected error"));
 
         assertDoesNotThrow(
-                () -> authorRegistryGateway.checkAuthor("Robert", "Stevenson", "Treasure Island")
+                () -> authorRegistryGateway.checkAuthor("Robert", "Stevenson", "Treasure Island", UUID.randomUUID().toString())
         );
 
         assertThrows(
                 AuthorRegistryException.class,
-                () -> authorRegistryGateway.checkAuthor("Robert", "Stevenson", "Treasure Island")
+                () -> authorRegistryGateway.checkAuthor("Robert", "Stevenson", "Treasure Island", UUID.randomUUID().toString())
         );
     }
 }

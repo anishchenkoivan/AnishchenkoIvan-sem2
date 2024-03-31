@@ -5,7 +5,12 @@ import io.github.resilience4j.circuitbreaker.CallNotPermittedException;
 import io.github.resilience4j.circuitbreaker.annotation.CircuitBreaker;
 import io.github.resilience4j.ratelimiter.RequestNotPermitted;
 import io.github.resilience4j.ratelimiter.annotation.RateLimiter;
+import io.github.resilience4j.retry.annotation.Retry;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.core.ParameterizedTypeReference;
+import org.springframework.http.HttpEntity;
+import org.springframework.http.HttpHeaders;
+import org.springframework.http.HttpMethod;
 import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Service;
 import org.springframework.web.client.RestClientException;
@@ -25,11 +30,22 @@ public class AuthorRegistryGateway {
 
     @RateLimiter(name = "checkAuthor", fallbackMethod = "fallbackRateLimiter")
     @CircuitBreaker(name = "checkAuthor", fallbackMethod = "fallbackCircuitBreaker")
-    public boolean checkAuthor(String authorFirstName, String authorLastName, String bookTitle) {
+    @Retry(name = "checkAuthor")
+    public boolean checkAuthor(String authorFirstName, String authorLastName, String bookTitle, String requestId) {
         try {
-            ResponseEntity<Boolean> authorValidationResponse = restTemplate.getForEntity(
+            HttpHeaders headers = new HttpHeaders();
+            headers.add("X-REQUEST-ID", requestId);
+//            ResponseEntity<Boolean> authorValidationResponse = restTemplate.getForEntity(
+//                    "/api/authors-check?firstName={firstName}&lastName={lastName}&bookTitle={bookTitle}",
+//                    Boolean.class,
+//                    Map.of("firstName", authorFirstName, "lastName", authorLastName, "bookTitle", bookTitle)
+//            );
+            ResponseEntity<Boolean> authorValidationResponse = restTemplate.exchange(
                     "/api/authors-check?firstName={firstName}&lastName={lastName}&bookTitle={bookTitle}",
-                    Boolean.class,
+                    HttpMethod.GET,
+                    new HttpEntity<>(headers),
+                    new ParameterizedTypeReference<Boolean>() {
+                    },
                     Map.of("firstName", authorFirstName, "lastName", authorLastName, "bookTitle", bookTitle)
             );
             if (authorValidationResponse.getStatusCode().is2xxSuccessful()) {

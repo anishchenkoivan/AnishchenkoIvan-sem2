@@ -13,6 +13,7 @@ import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Propagation;
 
 import java.util.Set;
+import java.util.UUID;
 
 @Service
 public class AuthorService {
@@ -48,7 +49,7 @@ public class AuthorService {
     @Transactional(propagation = Propagation.REQUIRED)
     public void createBook(Long authorId, String title, Set<Tag> tags) {
         Author author = authorRepository.findById(authorId).orElseThrow();
-        if (authorRegistryGateway.checkAuthor(author.getFirstName(), author.getLastName(), title)) {
+        if (authorRegistryGateway.checkAuthor(author.getFirstName(), author.getLastName(), title, UUID.randomUUID().toString())) {
             author.createBook(title, tags);
             authorRepository.save(author);
         }
