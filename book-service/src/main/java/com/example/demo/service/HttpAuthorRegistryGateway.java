@@ -19,6 +19,7 @@ import org.springframework.web.client.RestTemplate;
 
 import java.util.Map;
 import java.util.Objects;
+import java.util.UUID;
 
 @Service
 @ConditionalOnProperty(value = "author-registry-gateway.mode", havingValue = "http")
@@ -55,11 +56,11 @@ public class HttpAuthorRegistryGateway implements AuthorRegistryGateway {
         }
     }
 
-    public boolean fallbackRateLimiter(String authorFirstName, String authorLastName, String bookTitle, RequestNotPermitted e) {
+    public boolean fallbackRateLimiter(String authorFirstName, String authorLastName, String bookTitle, String requestId, RequestNotPermitted e) {
         throw new AuthorRegistryException(e.getMessage(), e);
     }
 
-    public boolean fallbackCircuitBreaker(String authorFirstName, String authorLastName, String bookTitle, CallNotPermittedException e) {
+    public boolean fallbackCircuitBreaker(String authorFirstName, String authorLastName, String bookTitle, String requestId, CallNotPermittedException e) {
         throw new AuthorRegistryException(e.getMessage(), e);
     }
 }

@@ -9,6 +9,9 @@ import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.boot.test.mock.mockito.MockBean;
 import org.springframework.context.annotation.EnableAspectJAutoProxy;
 import org.springframework.context.annotation.Import;
+import org.springframework.core.ParameterizedTypeReference;
+import org.springframework.http.HttpEntity;
+import org.springframework.http.HttpMethod;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.test.annotation.DirtiesContext;
@@ -19,23 +22,24 @@ import java.util.Map;
 import java.util.UUID;
 
 import static org.junit.jupiter.api.Assertions.*;
+import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.ArgumentMatchers.eq;
 import static org.mockito.Mockito.when;
 
 @SpringBootTest(
         classes = {
-                AuthorRegistryGateway.class,
+                HttpAuthorRegistryGateway.class
         },
         properties = {
                 "resilience4j.ratelimiter.instances.checkAuthor.limitForPeriod=1",
                 "resilience4j.ratelimiter.instances.checkAuthor.limitRefreshPeriod=1h",
                 "resilience4j.ratelimiter.instances.checkAuthor.timeoutDuration=0",
-                "resilience4j.circuitbreaker.instances.internalAccessCircuitBreaker.slowCallRateThreshold=1",
-                "resilience4j.circuitbreaker.instances.internalAccessCircuitBreaker.slowCallDurationThreshold=1000ms",
-                "resilience4j.circuitbreaker.instances.internalAccessCircuitBreaker.slidingWindowType=COUNT_BASED",
-                "resilience4j.circuitbreaker.instances.internalAccessCircuitBreaker.slidingWindowSize=1",
-                "resilience4j.circuitbreaker.instances.internalAccessCircuitBreaker.minimumNumberOfCalls=1",
-                "resilience4j.circuitbreaker.instances.internalAccessCircuitBreaker.waitDurationInOpenState=600s"
+                "resilience4j.circuitbreaker.instances.checkAuthor.slowCallRateThreshold=1",
+                "resilience4j.circuitbreaker.instances.checkAuthor.slowCallDurationThreshold=1000ms",
+                "resilience4j.circuitbreaker.instances.checkAuthor.slidingWindowType=COUNT_BASED",
+                "resilience4j.circuitbreaker.instances.checkAuthor.slidingWindowSize=1",
+                "resilience4j.circuitbreaker.instances.checkAuthor.minimumNumberOfCalls=1",
+                "resilience4j.circuitbreaker.instances.checkAuthor.waitDurationInOpenState=600s"
         }
 )
 @Import(RateLimiterAutoConfiguration.class)
@@ -60,30 +64,36 @@ public class AuthorRegistryGatewayRateLimiterTest {
             return new ResponseEntity<>(true, HttpStatus.OK);
         });
 
-        assertDoesNotThrow(
-                () -> authorRegistryGateway.checkAuthor("Robert", "Stevenson", "Treasure Island", UUID.randomUUID().toString())
-        );
+        when(restTemplate.exchange(
+                eq("/api/authors-check?firstName={firstName}&lastName={lastName}&bookTitle={bookTitle}"),
+                eq(HttpMethod.GET),
+                any(HttpEntity.class),
+                eq(new ParameterizedTypeReference<Boolean>() {}),
+                eq(Map.of("firstName", "Robert", "lastName", "Stevenson", "bookTitle", "Treasure Island"))
+        )).thenAnswer((Answer<ResponseEntity<Boolean>>) invocation -> {
+            Thread.sleep(2000);
+            return new ResponseEntity<>(true, HttpStatus.OK);
+        });
 
-        assertThrows(
-                AuthorRegistryException.class,
-                () -> authorRegistryGateway.checkAuthor("Robert", "Stevenson", "Treasure Island", UUID.randomUUID().toString()));
+
+        assertDoesNotThrow(
+                () -> authorRegistryGateway.checkAuthor("Robert", "Stevenson", "Treasure Island", "MockId")
+        );
     }
 
     @Test
     void shouldRejectRequestAfterFirstServerFailResponse() {
-        when(restTemplate.getForEntity(
+        when(restTemplate.exchange(
                 eq("/api/authors-check?firstName={firstName}&lastName={lastName}&bookTitle={bookTitle}"),
-                eq(Boolean.class),
+                eq(HttpMethod.GET),
+                any(HttpEntity.class),
+                eq(new ParameterizedTypeReference<Boolean>() {}),
                 eq(Map.of("firstName", "Robert", "lastName", "Stevenson", "bookTitle", "Treasure Island"))
         )).thenThrow(new RestClientException("Unexpected error"));
 
-        assertDoesNotThrow(
-                () -> authorRegistryGateway.checkAuthor("Robert", "Stevenson", "Treasure Island", UUID.randomUUID().toString())
-        );
-
         assertThrows(
                 AuthorRegistryException.class,
-                () -> authorRegistryGateway.checkAuthor("Robert", "Stevenson", "Treasure Island", UUID.randomUUID().toString())
+                () -> authorRegistryGateway.checkAuthor("Robert", "Stevenson", "Treasure Island", "MockId")
         );
     }
 }

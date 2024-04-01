@@ -24,7 +24,7 @@ import static org.mockserver.model.Parameter.param;
 @Testcontainers
 @SpringBootTest(
         classes = {
-                AuthorRegistryGateway.class,
+                HttpAuthorRegistryGateway.class,
                 RestTemplateConfiguration.class
         })
 public class AuthorRegistryGatewayTest {

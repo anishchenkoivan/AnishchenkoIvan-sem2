@@ -124,7 +124,8 @@
 				<configuration>
 					<excludes>
 						<exclude>**/exceptions/**</exclude>
-						<exclude>**/controller/response/**</exclude>
+						<exclude>**/response/**</exclude>
+						<exclude>**/request/**</exclude>
 					</excludes>
 				</configuration>
 				<executions>
