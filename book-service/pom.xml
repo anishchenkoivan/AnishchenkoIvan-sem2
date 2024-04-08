@@ -136,7 +136,7 @@
 				<version>0.8.7</version>
 				<configuration>
 					<excludes>
-						<exclude>**/exceptions/**</exclude>
+						<exclude>**/exception/**</exclude>
 						<exclude>**/response/**</exclude>
 						<exclude>**/request/**</exclude>
 					</excludes>
