@@ -19,11 +19,11 @@ import java.util.concurrent.CompletableFuture;
 @Service
 public class BookRatingCheckService {
     private final BookService bookService;
-    private final KafkaTemplate<Long, String> kafkaTemplate;
+    private final KafkaTemplate<String, String> kafkaTemplate;
     private final ObjectMapper objectMapper;
     private final String sendTopic;
 
-    public BookRatingCheckService(BookService bookService, KafkaTemplate<Long, String> kafkaTemplate, ObjectMapper objectMapper, @Value("${topic-to-send-message}") String sendTopic) {
+    public BookRatingCheckService(BookService bookService, KafkaTemplate<String, String> kafkaTemplate, ObjectMapper objectMapper, @Value("${topic-to-send-message}") String sendTopic) {
         this.bookService = bookService;
         this.kafkaTemplate = kafkaTemplate;
         this.objectMapper = objectMapper;
@@ -34,7 +34,7 @@ public class BookRatingCheckService {
         Book book = bookService.getBook(bookId);
         try {
             String message = objectMapper.writeValueAsString(new AssignBookRatingRequest(bookId));
-            CompletableFuture<SendResult<Long, String>> sendResult = kafkaTemplate.send(sendTopic, book.getId(), message);
+            CompletableFuture<SendResult<String, String>> sendResult = kafkaTemplate.send(sendTopic, book.getId().toString(), message);
         } catch (JsonProcessingException e) {
             throw new BookRatingException("Failed to create a JSON", e);
         }

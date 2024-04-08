@@ -17,11 +17,11 @@ import java.util.concurrent.CompletableFuture;
 @Service
 public class BookRatingConsumer {
     private final ObjectMapper objectMapper;
-    private final KafkaTemplate<Long, String> kafkaTemplate;
+    private final KafkaTemplate<String, String> kafkaTemplate;
     private static final Logger LOGGER = LoggerFactory.getLogger(BookRatingConsumer.class);
     private final String responseTopic;
 
-    public BookRatingConsumer(ObjectMapper objectMapper, KafkaTemplate<Long, String> kafkaTemplate, @Value("${topic-to-send-message}") String responseTopic) {
+    public BookRatingConsumer(ObjectMapper objectMapper, KafkaTemplate<String, String> kafkaTemplate, @Value("${topic-to-send-message}") String responseTopic) {
         this.objectMapper = objectMapper;
         this.kafkaTemplate = kafkaTemplate;
         this.responseTopic = responseTopic;
@@ -40,7 +40,7 @@ public class BookRatingConsumer {
     public void sendAssignedRating(Long bookId, int rating) {
         try {
             String message = objectMapper.writeValueAsString(new AssignBookRatingResponse(bookId, rating));
-            CompletableFuture<SendResult<Long, String>> sendResult = kafkaTemplate.send(responseTopic, bookId, message);
+            CompletableFuture<SendResult<String, String>> sendResult = kafkaTemplate.send(responseTopic, bookId.toString(), message);
         } catch (JsonProcessingException e) {
             LOGGER.error("Failed to send rating for book with id = {}", bookId);
         }
