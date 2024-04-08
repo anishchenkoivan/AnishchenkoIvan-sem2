@@ -26,6 +26,8 @@ public class Book {
     )
     private Set<Tag> tags = new HashSet<>();
 
+    private Integer rating;
+
     public Long getId() {
         return id;
     }
@@ -50,13 +52,22 @@ public class Book {
         this.tags = tags;
     }
 
+    public Integer getRating() {
+        return rating;
+    }
+
+    public void setRating(Integer rating) {
+        this.rating = rating;
+    }
+
     protected Book() {}
 
-    public Book(long id, Author author, String title, Set<Tag> tags) {
+    public Book(long id, Author author, String title, Set<Tag> tags, Integer rating) {
         this.id = id;
         this.author = author;
         this.title = title;
         this.tags = tags;
+        this.rating = rating;
     }
 
     public Book(Author author, String title, Set<Tag> tags) {

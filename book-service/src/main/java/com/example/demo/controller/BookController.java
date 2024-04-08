@@ -5,6 +5,7 @@ import com.example.demo.controller.request.BookUpdateRequest;
 import com.example.demo.controller.response.ApiError;
 import com.example.demo.entity.Tag;
 import com.example.demo.service.AuthorService;
+import com.example.demo.service.BookRatingCheckService;
 import com.example.demo.service.BookService;
 import com.example.demo.service.TagService;
 import jakarta.validation.Valid;
@@ -26,12 +27,14 @@ public class BookController {
     private final BookService bookService;
     private final AuthorService authorService;
     private final TagService tagService;
+    private final BookRatingCheckService bookRatingCheckService;
 
     @Autowired
-    public BookController(BookService bookService, AuthorService authorService, TagService tagService) {
+    public BookController(BookService bookService, AuthorService authorService, TagService tagService, BookRatingCheckService bookRatingCheckService) {
         this.bookService = bookService;
         this.authorService = authorService;
         this.tagService = tagService;
+        this.bookRatingCheckService = bookRatingCheckService;
     }
 
     @PostMapping()
@@ -51,6 +54,11 @@ public class BookController {
     @PutMapping("/{id}")
     public void updateBook(@NotNull @PathVariable Long id, @NotNull @RequestBody @Valid BookUpdateRequest request) {
         bookService.updateBookTitle(id, request.title());
+    }
+
+    @PutMapping("/{id}/rating")
+    public void getRating(@NotNull @PathVariable Long id) {
+        bookRatingCheckService.calculateRating(id);
     }
 
     @ExceptionHandler

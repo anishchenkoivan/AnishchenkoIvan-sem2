@@ -19,9 +19,21 @@ public class BookService {
     }
 
     @Transactional(propagation = Propagation.REQUIRED)
+    public Book getBook(long id) {
+        return bookRepository.findById(id).orElseThrow();
+    }
+
+    @Transactional(propagation = Propagation.REQUIRED)
     public void updateBookTitle(Long id, String title) {
         Book book = bookRepository.findById(id).orElseThrow();
         book.setTitle(title);
+        bookRepository.save(book);
+    }
+
+    @Transactional(propagation = Propagation.REQUIRED)
+    public void updateBookRating(Long bookId, int rating) {
+        Book book = getBook(bookId);
+        book.setRating(rating);
         bookRepository.save(book);
     }
 }
