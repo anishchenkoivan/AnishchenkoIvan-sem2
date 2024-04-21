@@ -36,7 +36,6 @@ public class BookPurchaseConsumer {
 
     @KafkaListener(topics = {"${payment-request-topic}"})
     public void makePurchase(String message, Acknowledgment acknowledgment) {
-        System.out.println("\n\n\n\n\n\n\n\n\n\nSOMETHING IS BEING LISTENED TO\n\n\n\n\n\n\n\n\n\n\n");
         try {
             BookPaymentRequest parsedMessage = objectMapper.readValue(message, BookPaymentRequest.class);
 
