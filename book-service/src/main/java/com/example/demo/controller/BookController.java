@@ -61,8 +61,9 @@ public class BookController {
         bookRatingCheckService.calculateRating(id);
     }
 
+    @PutMapping("/{id}/buy")
     public void buy(@NotNull @PathVariable Long id) {
-
+        bookService.buyBook(id);
     }
 
     @ExceptionHandler

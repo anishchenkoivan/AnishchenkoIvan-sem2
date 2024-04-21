@@ -1,11 +1,9 @@
 package com.example.demo.entity;
 
-import jakarta.persistence.GeneratedValue;
-import jakarta.persistence.GenerationType;
-import jakarta.persistence.Id;
-import jakarta.persistence.Table;
+import jakarta.persistence.*;
 import jakarta.validation.constraints.NotNull;
 
+@Entity
 @Table(name = "outbox")
 public class OutboxRecord {
     @Id
@@ -23,6 +21,8 @@ public class OutboxRecord {
     public OutboxRecord(String data) {
         this.data = data;
     }
+
+    protected OutboxRecord() {}
 
     public Long getId() {
         return id;

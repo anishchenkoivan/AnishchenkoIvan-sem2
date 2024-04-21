@@ -4,6 +4,8 @@ import com.example.demo.service.event.OrderPaymentInitiatedEvent;
 import com.example.demo.service.exception.OrderPaymentException;
 import jakarta.persistence.*;
 import org.springframework.data.domain.AbstractAggregateRoot;
+import org.springframework.transaction.annotation.Propagation;
+import org.springframework.transaction.annotation.Transactional;
 
 import java.util.HashSet;
 import java.util.Set;
@@ -14,7 +16,8 @@ public class Book extends AbstractAggregateRoot<Book> {
     public enum Status {
         NOT_SOLD,
         SOLD,
-        PAYMENT_PENDING
+        PAYMENT_PENDING,
+        ERROR
     }
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
@@ -81,7 +84,7 @@ public class Book extends AbstractAggregateRoot<Book> {
 
     public void buyBook() {
         if (status.equals(Status.PAYMENT_PENDING)) {
-            throw new OrderPaymentException("Order is in the processs of payment");
+            throw new OrderPaymentException("Order is in the proces of payment");
         }
         setStatus(Status.PAYMENT_PENDING);
         registerEvent(new OrderPaymentInitiatedEvent(id));
