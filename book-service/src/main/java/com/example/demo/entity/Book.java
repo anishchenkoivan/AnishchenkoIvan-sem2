@@ -1,13 +1,21 @@
 package com.example.demo.entity;
 
+import com.example.demo.service.event.OrderPaymentInitiatedEvent;
+import com.example.demo.service.exception.OrderPaymentException;
 import jakarta.persistence.*;
+import org.springframework.data.domain.AbstractAggregateRoot;
 
 import java.util.HashSet;
 import java.util.Set;
 
 @Entity
 @Table(name = "books")
-public class Book {
+public class Book extends AbstractAggregateRoot<Book> {
+    public enum Status {
+        NOT_SOLD,
+        SOLD,
+        PAYMENT_PENDING
+    }
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
@@ -27,6 +35,9 @@ public class Book {
     private Set<Tag> tags = new HashSet<>();
 
     private Integer rating;
+
+    @Enumerated(EnumType.ORDINAL)
+    private Status status = Status.NOT_SOLD;
 
     public Long getId() {
         return id;
@@ -58,6 +69,22 @@ public class Book {
 
     public void setRating(Integer rating) {
         this.rating = rating;
+    }
+
+    public Status getStatus() {
+        return status;
+    }
+
+    public void setStatus(Status status) {
+        this.status = status;
+    }
+
+    public void buyBook() {
+        if (status.equals(Status.PAYMENT_PENDING)) {
+            throw new OrderPaymentException("Order is in the processs of payment");
+        }
+        setStatus(Status.PAYMENT_PENDING);
+        registerEvent(new OrderPaymentInitiatedEvent(id));
     }
 
     protected Book() {}

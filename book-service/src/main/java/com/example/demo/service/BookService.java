@@ -36,4 +36,11 @@ public class BookService {
         book.setRating(rating);
         bookRepository.save(book);
     }
+
+    @Transactional(propagation = Propagation.REQUIRED)
+    public void buyBook(Long bookId) {
+        Book book = bookRepository.findByIdForUpdate(bookId).orElseThrow();
+        book.buyBook();
+        bookRepository.save(book);
+    }
 }

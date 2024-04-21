@@ -61,6 +61,10 @@ public class BookController {
         bookRatingCheckService.calculateRating(id);
     }
 
+    public void buy(@NotNull @PathVariable Long id) {
+
+    }
+
     @ExceptionHandler
     public ResponseEntity<ApiError> noSuchElementExceptionHandler(NoSuchElementException e) {
         return new ResponseEntity<>(
