@@ -11,7 +11,11 @@ import org.slf4j.LoggerFactory;
 import org.springframework.kafka.annotation.KafkaListener;
 import org.springframework.kafka.core.KafkaTemplate;
 import org.springframework.kafka.support.Acknowledgment;
+import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Propagation;
+import org.springframework.transaction.annotation.Transactional;
 
+@Service
 public class BookPurchaseConsumer {
     private final ObjectMapper objectMapper;
     private final KafkaTemplate<String, String> kafkaTemplate;
@@ -25,8 +29,8 @@ public class BookPurchaseConsumer {
     }
 
     @KafkaListener(topics = {"${payment-response-topic}"})
-    public void finishTransaction(String message, Acknowledgment acknowledgment) {
-        System.out.println("\n\n\n\n\n\n\n\n\n\n\nCATCHING THE TRANSACTION\n\n\n\n\n\n\n\n\n\n\n\n");
+    @Transactional(propagation = Propagation.REQUIRED)
+    public void finishTransaction(String message) {
         try {
             BookPaymentResponse parsedMessage = objectMapper.readValue(message, BookPaymentResponse.class);
             Book book = bookRepository.findByIdForUpdate(parsedMessage.bookId()).orElseThrow();
@@ -37,7 +41,6 @@ public class BookPurchaseConsumer {
                 LOGGER.warn("Book purchase failed for book with id = {}", parsedMessage.bookId());
             }
             bookRepository.save(book);
-            acknowledgment.acknowledge();
         } catch (JsonProcessingException e) {
             throw new OrderPaymentException("failed to parse json", e);
         }

@@ -75,7 +75,6 @@ public class EndToEndTest {
     @MockBean
     private RestTemplate restTemplate;
 
-//    @Qualifier("objectMapper")
     @Autowired
     private ObjectMapper objectMapper;
 
@@ -124,14 +123,29 @@ public class EndToEndTest {
 
         assertEquals(Book.Status.PAYMENT_PENDING, bookRepository.findById(1L).get().getStatus());
 
-        Thread.sleep(5000);
+        Thread.sleep(3000);
         ConsumerRecords<String, String> records = consumer.poll();
         assertEquals(1, records.count());
 
         String responseData = objectMapper.writeValueAsString(new BookPaymentResponse(1L, true));
         kafkaTemplate.send("test-payment-response", responseData);
-        consumer.subscribe(List.of("test-payment-response"));
-        Thread.sleep(5000);
+        Thread.sleep(3000);
         assertEquals(Book.Status.SOLD, bookRepository.findById(1L).get().getStatus());
+    }
+
+    @Test
+    @Order(5)
+    void shouldFailInBuyingBook() throws JsonProcessingException, InterruptedException {
+        when(authorRegistryGateway.checkAuthor(eq("Ernest"), eq("Hemingway"), eq("For whom the bell tolls"), any())).thenReturn(true);
+        ResponseEntity<EmptyResponse> createBookResponse = rest.postForEntity("/api/books", new BookCreateRequest(1L, "For whom the bell tolls", Collections.emptySet()), EmptyResponse.class);
+        assertTrue(createBookResponse.getStatusCode().is2xxSuccessful());
+        int booksAmount = bookRepository.findAll().size();
+        assertEquals(2, booksAmount);
+
+        rest.put("/api/books/{id}/buy", null, Map.of("id", 2));
+        String responseData = objectMapper.writeValueAsString(new BookPaymentResponse(2L, false));
+        kafkaTemplate.send("test-payment-response", responseData);
+        Thread.sleep(3000);
+        assertEquals(Book.Status.ERROR, bookRepository.findById(2L).get().getStatus());
     }
 }
