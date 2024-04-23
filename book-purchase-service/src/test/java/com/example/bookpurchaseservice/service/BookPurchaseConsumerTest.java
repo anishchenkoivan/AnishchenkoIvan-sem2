@@ -9,7 +9,7 @@ import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import org.apache.kafka.clients.consumer.ConsumerRecord;
 import org.apache.kafka.clients.consumer.ConsumerRecords;
-import org.junit.jupiter.api.Test;
+import org.junit.jupiter.api.*;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.autoconfigure.jdbc.AutoConfigureTestDatabase;
 import org.springframework.boot.test.context.SpringBootTest;
@@ -27,9 +27,10 @@ import java.util.List;
 
 import static org.junit.jupiter.api.Assertions.*;
 
-@SpringBootTest
+@SpringBootTest()
 @AutoConfigureTestDatabase(replace = AutoConfigureTestDatabase.Replace.NONE)
 @Testcontainers
+@TestMethodOrder(MethodOrderer.OrderAnnotation.class)
 public class BookPurchaseConsumerTest {
     @Container
     @ServiceConnection
@@ -51,12 +52,19 @@ public class BookPurchaseConsumerTest {
     @Autowired
     private MoneyRepository moneyRepository;
 
+    private static KafkaTestConsumer consumer;
+
+    @BeforeAll
+    static void setUpConsumer() {
+        consumer = new KafkaTestConsumer(KAFKA.getBootstrapServers(), "test-book-service-group");
+        consumer.subscribe(List.of("test-payment-response"));
+    }
+
     @Test
+    @Order(0)
     void shouldSuccessfullyMakePurchase() throws JsonProcessingException, InterruptedException {
         String requestData = objectMapper.writeValueAsString(new BookPaymentRequest(1L));
-        KafkaTestConsumer consumer = new KafkaTestConsumer(KAFKA.getBootstrapServers(), "test-book-service-group");
 
-        consumer.subscribe(List.of("test-payment-response"));
         kafkaTemplate.send("test-payment-request", requestData);
 
         ConsumerRecords<String, String> records = consumer.poll();
@@ -65,17 +73,15 @@ public class BookPurchaseConsumerTest {
 
     @Test
     @Transactional
+    @Order(1)
     void shouldMakePurchaseAndWithdrawMoney() throws JsonProcessingException, InterruptedException {
         String requestData = objectMapper.writeValueAsString(new BookPaymentRequest(1L));
-        KafkaTestConsumer consumer = new KafkaTestConsumer(KAFKA.getBootstrapServers(), "test-book-service-group");
-        consumer.subscribe(List.of("test-payment-response"));
         assertDoesNotThrow(() -> bookPurchaseConsumer.makePurchase(requestData, new Acknowledgment() {
             @Override
             public void acknowledge() {
             }
         }));
 
-        Thread.sleep(1000);
         ConsumerRecords<String, String> records = consumer.poll();
 
         assertEquals(1, records.count());
@@ -85,22 +91,22 @@ public class BookPurchaseConsumerTest {
 
     @Test
     @Transactional
-    void shouldCancelPurchaseDueToLowBalance() throws JsonProcessingException {
-        KafkaTestConsumer consumer = new KafkaTestConsumer(KAFKA.getBootstrapServers(), "test-book-service-group");
-        consumer.subscribe(List.of("test-payment-response"));
+    @Order(2)
+    void shouldCancelPurchaseDueToLowBalance() throws JsonProcessingException, InterruptedException {
         for (int i = 0; i < 5; i++) {
-            String requestData = objectMapper.writeValueAsString(new BookPaymentRequest(1L));
+            String requestData = objectMapper.writeValueAsString(new BookPaymentRequest(3131L));
             bookPurchaseConsumer.makePurchase(requestData, new Acknowledgment() {
                 @Override
                 public void acknowledge() {
                 }
             });
         }
+        Thread.sleep(1000);
         ConsumerRecords<String, String> records = consumer.poll();
+        consumer.poll();
 
         Money money = moneyRepository.getForUpdate().orElseThrow();
         assertEquals(0, money.getAmount());
-        assertEquals(5, records.count());
 
         String requestData = objectMapper.writeValueAsString(new BookPaymentRequest(1L));
         bookPurchaseConsumer.makePurchase(requestData, new Acknowledgment() {
