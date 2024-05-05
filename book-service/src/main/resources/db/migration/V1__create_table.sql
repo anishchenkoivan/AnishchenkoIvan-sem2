@@ -27,3 +27,11 @@ create table outbox (
     id bigserial primary key,
     data text
 );
+
+CREATE TABLE users
+(
+    id       BIGSERIAL PRIMARY KEY,
+    username TEXT  NOT NULL,
+    password TEXT  NOT NULL,
+    roles    JSONB NOT NULL
+)
