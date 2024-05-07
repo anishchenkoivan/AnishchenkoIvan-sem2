@@ -13,6 +13,7 @@ import jakarta.validation.constraints.NotNull;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
+import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.validation.annotation.Validated;
 import org.springframework.web.bind.annotation.*;
 
@@ -23,6 +24,7 @@ import java.util.Set;
 @RestController
 @RequestMapping(value = "/api/books")
 @Validated
+@PreAuthorize("isAuthenticated()")
 public class BookController {
     private final BookService bookService;
     private final AuthorService authorService;
@@ -37,6 +39,7 @@ public class BookController {
         this.bookRatingCheckService = bookRatingCheckService;
     }
 
+    @PreAuthorize("hasAuthority('ADMIN')")
     @PostMapping()
     public void createBook(@NotNull @RequestBody @Valid BookCreateRequest request) {
         Set<Tag> tags = new HashSet<>();
@@ -46,11 +49,13 @@ public class BookController {
         authorService.createBook(request.authorId(), request.title(), tags);
     }
 
+    @PreAuthorize("hasAuthority('ADMIN')")
     @DeleteMapping("/{id}")
     public void deleteBook(@NotNull @PathVariable Long id) {
         authorService.deleteBook(id);
     }
 
+    @PreAuthorize("hasAuthority('ADMIN')")
     @PutMapping("/{id}")
     public void updateBook(@NotNull @PathVariable Long id, @NotNull @RequestBody @Valid BookUpdateRequest request) {
         bookService.updateBookTitle(id, request.title());

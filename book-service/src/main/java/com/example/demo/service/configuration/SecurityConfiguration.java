@@ -36,7 +36,7 @@ public class SecurityConfiguration {
         return new InMemoryUserDetailsManager(
                 List.of(
                         User.withUsername("user").roles("REGULAR").password("123").passwordEncoder(passwordEncoder()::encode).build(),
-                        User.withUsername("admin").roles("ADMIN").roles("ADMIN").passwordEncoder(passwordEncoder()::encode).build()
+                        User.withUsername("admin").roles("ADMIN").password("123").passwordEncoder(passwordEncoder()::encode).build()
                 )
         );
     }
