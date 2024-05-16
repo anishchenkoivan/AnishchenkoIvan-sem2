@@ -9,6 +9,7 @@ import jakarta.validation.constraints.NotNull;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
+import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.validation.annotation.Validated;
 import org.springframework.web.bind.annotation.*;
 
@@ -17,6 +18,7 @@ import java.util.NoSuchElementException;
 @RestController
 @RequestMapping(value = "/api/tags")
 @Validated
+@PreAuthorize("isAuthenticated()")
 public class TagController {
     private final TagService tagService;
 
@@ -25,16 +27,19 @@ public class TagController {
         this.tagService = tagService;
     }
 
+    @PreAuthorize("hasAuthority('ADMIN')")
     @PostMapping()
     public void createTag(@NotNull @RequestBody @Valid TagCreateRequest request) {
         tagService.createTag(request.name());
     }
 
+    @PreAuthorize("hasAuthority('ADMIN')")
     @DeleteMapping("/{id}")
     public void deleteTag(@NotNull @PathVariable Long id) {
         tagService.deleteTag(id);
     }
 
+    @PreAuthorize("hasAuthority('ADMIN')")
     @PutMapping("/{id}")
     public void updateTag(@NotNull @PathVariable Long id, @NotNull @RequestBody @Valid TagUpdateRequest request) {
         tagService.updateTag(id, request.name());

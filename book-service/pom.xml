@@ -121,6 +121,11 @@
 			<scope>test</scope>
 		</dependency>
 
+		<dependency>
+			<groupId>org.springframework.boot</groupId>
+			<artifactId>spring-boot-starter-security</artifactId>
+		</dependency>
+
 	</dependencies>
 
 	<build>
@@ -139,6 +144,8 @@
 						<exclude>**/exception/**</exclude>
 						<exclude>**/response/**</exclude>
 						<exclude>**/request/**</exclude>
+						<exclude>**/controller/**</exclude>
+						<exclude>**/service/**</exclude>
 					</excludes>
 				</configuration>
 				<executions>
